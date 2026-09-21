@@ -1,0 +1,22 @@
+{
+  "pair_id": "flood_2021_06_amur__poyarkovo",
+  "aoi_id": "poyarkovo",
+  "event_id": "flood_2021_06_amur",
+  "event_peak_date": "2021-06-27",
+  "crs": "EPSG:32652",
+  "produced_by": "HydroWatch dataset pipeline",
+  "bands": [
+    "slope",
+    "hand",
+    "occurrence",
+    "seasonality",
+    "max_extent",
+    "builtup"
+  ],
+  "sources": [
+    "Copernicus DEM GLO-30",
+    "MERIT Hydro v1.0.1",
+    "JRC GSW v1.4",
+    "ESA WorldCover v200"
+  ]
+}

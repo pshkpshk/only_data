@@ -1,0 +1,23 @@
+{
+  "pair_id": "flood_2019_07_amur__svobodny",
+  "aoi_id": "svobodny",
+  "event_id": "flood_2019_07_amur",
+  "event_peak_date": "2019-07-27",
+  "crs": "EPSG:32652",
+  "produced_by": "HydroWatch dataset pipeline",
+  "sensor": "sentinel2",
+  "window": "pre",
+  "scene_date": "2019-06-18",
+  "bands": [
+    "B3",
+    "B4",
+    "B8",
+    "B11",
+    "NDWI",
+    "MNDWI",
+    "NDVI",
+    "AWEISH"
+  ],
+  "reflectance_units": "0-1 (surface reflectance)",
+  "dtype": "float32"
+}

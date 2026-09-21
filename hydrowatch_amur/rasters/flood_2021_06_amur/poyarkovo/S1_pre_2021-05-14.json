@@ -1,0 +1,19 @@
+{
+  "pair_id": "flood_2021_06_amur__poyarkovo",
+  "aoi_id": "poyarkovo",
+  "event_id": "flood_2021_06_amur",
+  "event_peak_date": "2021-06-27",
+  "crs": "EPSG:32652",
+  "produced_by": "HydroWatch dataset pipeline",
+  "sensor": "Sentinel-1 IW GRD (dB, sigma0)",
+  "window": "pre",
+  "scene_date": "2021-05-14",
+  "orbit_pass": "DESCENDING",
+  "relative_orbit": 105,
+  "bands": [
+    "VV",
+    "VH",
+    "VV_VH_ratio"
+  ],
+  "note": "EE-коллекция COPERNICUS/S1_GRD: применены орбитальные файлы, удалён шум границы и тепловой шум, выполнена радиометрическая калибровка и террейн-коррекция"
+}
