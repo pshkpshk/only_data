@@ -1,0 +1,31 @@
+{
+  "pairs": [
+    "flood_2021_08_zeya__svobodny"
+  ],
+  "bands": {
+    "flood": {
+      "threshold": 0.95,
+      "combined": 0.5718839703614439,
+      "dice": 0.5138249292908722,
+      "area_agreement": 0.7073550661927781
+    },
+    "water_pre": {
+      "threshold": 0.78,
+      "combined": 0.9474784086532004,
+      "dice": 0.9252026663219342,
+      "area_agreement": 0.9994551407594887
+    },
+    "water_peak": {
+      "threshold": 0.95,
+      "combined": 0.5905126133730827,
+      "dice": 0.44100636472178256,
+      "area_agreement": 0.939360526892783
+    }
+  },
+  "thresholds": [
+    0.95,
+    0.78,
+    0.95
+  ],
+  "mean_combined": 0.7032916641292424
+}

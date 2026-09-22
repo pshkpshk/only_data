@@ -1,0 +1,9 @@
+.git
+.venv
+__pycache__
+*.pyc
+outputs/
+data/
+weights/*.pth
+.DS_Store
+*.tar.gz

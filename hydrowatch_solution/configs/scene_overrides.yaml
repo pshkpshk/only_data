@@ -1,0 +1,18 @@
+flood_2021_06_amur__poyarkovo:
+  s1:
+    pre:
+      date: "2021-04-27"
+      orbit_pass: DESCENDING
+      relative_orbit: 32
+      output_name: S1_pre.tif
+    peak:
+      date: "2021-06-26"
+      orbit_pass: DESCENDING
+      relative_orbit: 32
+      output_name: S1_peak.tif
+  s2:
+    peak:
+      date: "2021-06-27"
+      fallback_dates:
+        - "2021-06-24"
+      output_name: SENTINEL2_peak.tif

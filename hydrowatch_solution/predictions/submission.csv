@@ -1,0 +1,12 @@
+pair_id,flood_ha,water_pre_ha,water_peak_ha
+baseline_2018_09_low__blagoveshchensk,0.0,9336.08,6134.8
+baseline_2018_09_low__konstantinovka,0.0,6293.03,820.71
+baseline_2018_09_low__svobodny,0.0,4417.06,2519.72
+flood_2019_07_amur__belogorsk,134.59,617.72,707.04
+flood_2019_07_amur__blagoveshchensk,586.42,7464.93,7811.97
+flood_2019_07_amur__konstantinovka,650.83,6113.39,6727.01
+flood_2019_07_amur__svobodny,291.45,780.67,866.25
+flood_2021_06_amur__blagoveshchensk,960.57,3404.74,1612.96
+flood_2021_06_amur__konstantinovka,94.71,0.0,145.13
+flood_2021_06_amur__poyarkovo,3367.01,3840.6,5863.0
+flood_2021_08_zeya__svobodny,3211.38,3984.85,6801.06

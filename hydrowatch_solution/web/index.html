@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HydroWatch Amur — динамика затопления</title>
+  <link rel="stylesheet" href="vendor/leaflet.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <aside id="panel">
+    <header>
+      <h1>HydroWatch Amur</h1>
+      <p class="sub">Sentinel-1 + Sentinel-2 · водное зеркало «до» / «пик» · прирост и убыль</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Территория и даты</h2>
+      <label>Готовая пара (район × событие)
+        <select id="pairSelect"></select>
+      </label>
+      <div class="row">
+        <label>Дата «до» <input type="date" id="datePre" /></label>
+        <label>Дата «пик» <input type="date" id="datePeak" /></label>
+      </div>
+      <label>Полигон / bbox запроса (WGS84)
+        <textarea id="geometryInput" rows="3" placeholder='[min_lon, min_lat, max_lon, max_lat] или GeoJSON-геометрия'></textarea>
+      </label>
+      <div class="row">
+        <button id="useViewBtn" class="ghost" title="Взять текущий экстент карты как bbox">bbox = экран карты</button>
+        <button id="drawBtn" class="ghost" title="Нарисовать прямоугольник на карте">нарисовать bbox</button>
+        <button id="clearGeomBtn" class="ghost">весь район</button>
+      </div>
+      <button id="runBtn" class="primary">Рассчитать</button>
+      <div id="status" class="status"></div>
+    </section>
+
+    <section class="card">
+      <h2>2. Слои</h2>
+      <div id="layerToggles"></div>
+      <label class="slider">Прозрачность <input type="range" id="opacity" min="0.1" max="1" step="0.05" value="0.85" /></label>
+      <label class="check"><input type="checkbox" id="swipeToggle" /> Режим сравнения «до | пик» (шторка)</label>
+    </section>
+
+    <section class="card" id="reportCard" hidden>
+      <h2>3. Сводный отчёт</h2>
+      <div id="reportSummary"></div>
+      <details><summary>Разбивка затопления по типам поверхности</summary><div id="landcover"></div></details>
+      <details><summary>Профиль HAND зоны затопления</summary><div id="handProfile"></div></details>
+      <h3>Выгрузки</h3>
+      <div id="downloads" class="downloads"></div>
+      <details><summary>JSON отчёта</summary><pre id="reportJson"></pre></details>
+    </section>
+
+    <footer>
+      <a href="/docs" target="_blank">REST API (Swagger)</a> · <a href="/api/pairs" target="_blank">/api/pairs</a>
+    </footer>
+  </aside>
+  <main id="map"></main>
+  <script src="vendor/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

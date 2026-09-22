@@ -1,0 +1,38 @@
+# HydroWatch Amur — запуск сервиса и инференса.
+#
+#   docker compose up --build            → карта и API: http://localhost:8000  (Swagger: /docs)
+#   docker compose --profile inference run --rm inference
+#                                        → пересчёт масок и submission.csv в ./outputs/final_prediction
+#
+# Переменная HYDROWATCH_DATA_DIR задаёт путь к набору организаторов (по умолчанию ./data/raw/hydrowatch_amur).
+# Для сервиса набор нужен только ради AUX-слоёв (разбивка по типам поверхности); без него сервис тоже работает.
+
+services:
+  service:
+    build:
+      context: .
+      target: service
+    image: hydrowatch-service:latest
+    container_name: hydrowatch-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${HYDROWATCH_DATA_DIR:-./data/raw/hydrowatch_amur}:/data:ro
+      - ./outputs/service_state:/app/outputs/service_state
+    environment:
+      HYDROWATCH_DATA_ROOT: /data
+      HYDROWATCH_PREDICTIONS_DIR: /app/predictions
+    restart: unless-stopped
+
+  inference:
+    profiles: ["inference"]
+    build:
+      context: .
+      target: inference
+    image: hydrowatch-inference:latest
+    volumes:
+      - ${HYDROWATCH_DATA_DIR:-./data/raw/hydrowatch_amur}:/data:ro
+      - ./weights:/app/weights:ro
+      - ./outputs:/app/outputs
+    environment:
+      OMP_NUM_THREADS: "4"

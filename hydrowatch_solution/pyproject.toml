@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hydrowatch-amur"
+version = "0.1.0"
+description = "Multimodal flood-change segmentation for the KosmoHackathon 2026 HydroWatch case"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "numpy>=1.26,<3",
+  "PyYAML>=6.0,<7",
+  "rasterio>=1.4,<2",
+  "torch>=2.5,<3",
+  "torchvision>=0.20,<1",
+  "tqdm>=4.66,<5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<10",
+  "ruff>=0.12,<1",
+]
+analysis = [
+  "pandas>=2.2,<4",
+]
+download = [
+  "planetary-computer>=1.0,<2",
+  "pystac-client>=0.9,<1",
+]
+service = [
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.30,<1",
+  "shapely>=2.0,<3",
+  "python-multipart>=0.0.9,<1",
+]
+
+[project.scripts]
+hydrowatch-validate = "hydrowatch.validate:main"
+hydrowatch-train = "hydrowatch.train:main"
+hydrowatch-download = "hydrowatch.download:main"
+hydrowatch-predict = "hydrowatch.predict:main"
+hydrowatch-calibrate = "hydrowatch.calibrate:main"
+hydrowatch-check-submission = "hydrowatch.submission:main"
+hydrowatch-service = "hydrowatch.service.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hydrowatch"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/reference_audit.py" = ["E501"]  # markdown table rows are long by nature

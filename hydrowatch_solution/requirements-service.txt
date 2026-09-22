@@ -1,0 +1,13 @@
+# Зафиксированные версии для аналитического сервиса (проверены на Python 3.12, linux/amd64).
+# Полный набор для обучения/инференса фиксируется uv.lock (uv sync).
+numpy==2.4.6
+rasterio==1.4.4
+affine==3.0.1
+shapely==2.1.2
+pyproj==3.7.2
+PyYAML==6.0.3
+fastapi==0.141.1
+starlette==1.6.0
+pydantic==2.13.5
+uvicorn==0.53.0
+python-multipart==0.0.32

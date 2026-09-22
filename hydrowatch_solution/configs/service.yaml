@@ -1,0 +1,26 @@
+# Конфигурация аналитического сервиса (hydrowatch-service).
+# Переменные окружения HYDROWATCH_PREDICTIONS_DIR / HYDROWATCH_DATA_ROOT / HYDROWATCH_PAIRS_CSV
+# имеют приоритет над этим файлом. Все пути — относительно рабочего каталога.
+
+predictions_dir: predictions            # masks/<pair_id>_all.tif + submission.csv (+ pairs.csv как fallback)
+data_root: data/raw/hydrowatch_amur     # набор организаторов: pairs.csv, rasters/**/AUX_terrain_gsw.tif
+pairs_csv: null                          # явный путь к pairs.csv (null = искать в data_root, затем в predictions_dir)
+state_dir: outputs/service_state         # хранилище инкрементальных наблюдений (POST /api/observations)
+
+date_tolerance_days: 20                  # допуск при подборе пары по датам запроса (± дней)
+min_mapping_unit_ha: 0.25                # 25 пикселей по 10 м — как MMU эталонной разметки
+simplify_tolerance_m: 5.0                # упрощение контуров (полпикселя), 0 = без упрощения
+overlay_max_size: 1500                   # максимальная сторона PNG-оверлея для карты
+permanent_occurrence_pct: 80             # порог постоянной воды JRC GSW, как в эталоне
+lowland_hand_m: 5.0                      # граница «низкие земли» в разбивке по покрову
+
+model_name: "Siamese multimodal U-Net (ResNet-18 SAR + ResNet-18 optical, SSL4EO init), thresholds 0.95/0.78/0.95"
+
+# Классы разбивки затопления по типам поверхности (первый подходящий класс побеждает).
+landcover_classes:
+  - {code: builtup,         name: "Застройка (ESA WorldCover built-up)"}
+  - {code: permanent_water, name: "Постоянная вода (GSW occurrence ≥ 80 %)"}
+  - {code: seasonal_water,  name: "Сезонная вода (GSW seasonality ≥ 1 мес/год)"}
+  - {code: floodplain,      name: "Пойма многолетнего разлива (GSW max_extent)"}
+  - {code: lowland,         name: "Низкие земли вне разлива (HAND < 5 м)"}
+  - {code: upland,          name: "Возвышенные земли (HAND ≥ 5 м) — кандидаты в ложные срабатывания"}
