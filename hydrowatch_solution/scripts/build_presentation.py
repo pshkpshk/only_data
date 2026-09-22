@@ -136,15 +136,24 @@ def picture(slide, path: Path, left, top, width, height, hint):
         frame.fill.background()
         return pic
     shape = rect(slide, left, top, width, height, fill=TINT, line=LINE, rounded=True, radius=0.04)
-    tf = shape.text_frame
-    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-    p = tf.paragraphs[0]
-    p.alignment = PP_ALIGN.CENTER
-    run = p.add_run()
-    run.text = hint
-    run.font.size = Pt(13)
-    run.font.color.rgb = GREY
-    run.font.name = FONT
+    if isinstance(hint, str):
+        tf = shape.text_frame
+        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        p = tf.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        run = p.add_run()
+        run.text = hint
+        run.font.size = Pt(13)
+        run.font.color.rgb = GREY
+        run.font.name = FONT
+        return shape
+    title, lines = hint
+    pad = Inches(0.3)
+    rect(slide, left + pad, top + pad, Inches(0.5), Inches(0.06), fill=BLUE, rounded=False)
+    text(slide, left + pad, top + pad + Inches(0.15), width - 2 * pad, Inches(0.5), title, size=16,
+         bold=True, color=BLUE_DARK)
+    text(slide, left + pad, top + pad + Inches(0.7), width - 2 * pad, height - pad - Inches(0.8),
+         lines, size=13, color=INK, spacing=6)
     return shape
 
 
@@ -209,10 +218,10 @@ def build(out: Path, shots: Path, team: str, score: str) -> None:
          "Score = 0.45 · Q_flood + 0.25 · Q_peak + 0.15 · Q_pre + 0.15 · Spec_межень",
          size=20, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
     text(s, M + Inches(0.3), top + Inches(3.3), cw - Inches(0.6), Inches(0.6),
-         "q = 1 − |ошибка площади| / max(эталон, порог); порог 50 га для затопления, 200 га для зеркала",
+         "q = 1 − |ошибка площади| / max(эталон, порог) · порог 50 га (затопление), 200 га (зеркало)",
          size=14, color=WHITE, align=PP_ALIGN.CENTER)
     text(s, M, top + Inches(4.3), cw, Inches(0.6),
-         "Главное — площадь нового затопления (45 %); межень штрафует ложные срабатывания",
+         "Главное — площадь нового затопления; межень штрафует ложную воду",
          size=15, color=GREY)
 
     # 3 ---------------------------------------------------------------- данные
@@ -227,9 +236,9 @@ def build(out: Path, shots: Path, team: str, score: str) -> None:
     )):
         card(s, M + i * (quarter + Inches(0.25)), top, quarter, Inches(2.6), title, body, big=big)
     bullets(s, M, top + Inches(2.95), cw, Inches(1.8), [
-        "σ⁰: VV бимодальна (вода ≈ −20…−24 дБ); VH ниже на 6–8 дБ и с меньшим контрастом",
-        "Разрыв SAR–оптика до 5 суток; сцены двух орбит (32 и 105) с разной геометрией",
-        "Эталон: 3 источника (GSW / консенсус / GFM) — не однородный, см. слайд 07",
+        "VV бимодальна: вода ≈ −20…−24 дБ; VH слабее по контрасту",
+        "SAR и оптика разнесены до 5 суток; две орбиты — 32 и 105",
+        "Эталон собран из 3 источников — неоднороден (слайд 07)",
     ], size=15)
 
     # 4 ---------------------------------------------------------------- почему не порог
@@ -293,8 +302,8 @@ def build(out: Path, shots: Path, team: str, score: str) -> None:
         text(s, bx, oy + Inches(0.42), bw, Inches(0.3), thr, size=12, color=GREY,
              align=PP_ALIGN.CENTER)
     text(s, M, oy + Inches(0.9), cw, Inches(0.5),
-         "Loss: focal Tversky + Dice/BCE + штраф за площадь + логика (затопление ⊂ пик, ∩ «до» = ∅)  ·  "
-         "пороги калиброваны на отложенной Зее-2021  ·  веса best.pt, SHA-256 6c7ef209…2d06",
+         "Loss: focal Tversky + Dice/BCE + штраф за площадь + гидрологика (затопление ⊂ пик, ∩ «до» = ∅)  ·  "
+         "пороги — по отложенной Зее-2021",
          size=12, color=GREY)
 
     # 6 ---------------------------------------------------------------- результаты
@@ -320,9 +329,9 @@ def build(out: Path, shots: Path, team: str, score: str) -> None:
         if r == 0:
             rect(s, M, yy + Inches(0.34), Inches(5.3), Emu(12700), fill=LINE)
     bullets(s, M + Inches(6.2), ty, cw - Inches(6.2), Inches(2.2), [
-        "Fine-tune лучшей ранней модели: val loss 0.489 → 0.449 (с нуля — 0.614)",
-        "Межень: flood = 0 по типу события, Spec = 1.0 без подгонки под эталон",
-        "Абляции тем же чекпоинтом: --ablation no_optical / no_aux (REPORT §6.2)",
+        "Fine-tune: val loss 0.489 → 0.449; с нуля — 0.614",
+        "Межень: flood = 0 по типу события → Spec = 1.0",
+        "Абляции: без оптики / без AUX (REPORT §6.2)",
     ], size=14)
 
     # 7 ---------------------------------------------------------------- критика эталона
@@ -330,31 +339,42 @@ def build(out: Path, shots: Path, team: str, score: str) -> None:
     frame(s, 7, "Критика эталона", "Воспроизводимый аудит: scripts/reference_audit.py")
     for i, (big, title, body) in enumerate((
         ("5 из 11", "масок воды почти без постоянной воды",
-         "сцены орбиты 105 покрывали район частично: Константиновка-2021 — 30 га «до» при 5436 га реки"),
+         "Константиновка-2021: 30 га «до» при 5436 га реки — частичное покрытие орбиты 105"),
         ("+14 %", "Зея-2021: JSON 2179 га, маска 2484 га", "какую цифру считать эталоном?"),
         ("1156 га", "flood ≠ peak ∧ ¬pre ∧ ¬perm", "фильтры уклон/HAND/MMU применены только к flood"),
     )):
         card(s, M + i * (third + Inches(0.3)), top, third, Inches(2.7), title, body, big=big)
     bullets(s, M, top + Inches(3.0), cw, Inches(1.6), [
-        "Наш случай: Поярково — сцены орбиты 105 покрывали 0.3–0.4 % района → scene_overrides.yaml, орбита 32 (100 %)",
-        "Вывод: часть «ошибки» модели — ошибка эталона; метрика по площадям видит «сколько», но не «где»",
+        "Поярково: орбита 105 покрывала 0.3 % района → переключили на орбиту 32",
+        "Часть «ошибки» модели — ошибка эталона; метрика видит «сколько», но не «где»",
     ], size=15)
 
     # 8 ---------------------------------------------------------------- сервис
     s = prs.slides.add_slide(blank)
     frame(s, 8, "Сервис: карта, отчёт, API", "docker compose up --build → http://localhost:8000 · Swagger /docs")
     picture(s, shots / "01_map_swipe.png", M, top, Inches(7.2), Inches(3.9),
-            "скриншот 01_map_swipe.png")
+            ("Карта района: Свободный (Зея)", [
+                "слои «до» · «пик» · прирост · убыль",
+                "шторка сравнения дат, переключение слоёв",
+                "запрос: полигон / bbox + даты",
+                "подложка OSM, контур AOI, легенда",
+            ]))
     picture(s, shots / "02_report_panel.png", M + Inches(7.45), top, cw - Inches(7.45), Inches(3.9),
-            "скриншот 02_report_panel.png")
+            ("Отчёт по AOI", [
+                "вода «до»: 3 984,85 га",
+                "вода «пик»: 6 801,06 га",
+                "новое затопление: 3 211,38 га",
+                "убыль: 640,45 га",
+                "доля AOI, разбивка по WorldCover",
+                "JSON · CSV · GeoJSON · GeoTIFF",
+            ]))
     x = M
     for label, wdt in (("полигон / bbox + даты", Inches(2.5)), ("слои «до · пик · прирост · убыль», шторка", Inches(4.1)),
                        ("отчёт JSON / CSV, GeoJSON, GeoTIFF", Inches(3.6)), ("REST API", Inches(1.5))):
         chip(s, x, top + Inches(4.1), wdt, label, size=12, height=Inches(0.4))
         x += wdt + Inches(0.12)
     text(s, M, top + Inches(4.6), cw, Inches(0.5),
-         "Зея-2021: прирост 3211 га, убыль 640 га, зеркало +71 % · разбивка по типам поверхности и профиль HAND · "
-         "ответ по району ≈ 1 с", size=13, color=GREY)
+         "Зея-2021: прирост 3211 га · убыль 640 га · зеркало +71 % · ответ ≈ 1 с", size=13, color=GREY)
 
     # 9 ---------------------------------------------------------------- продукт + воспроизводимость
     s = prs.slides.add_slide(blank)
@@ -373,12 +393,19 @@ def build(out: Path, shots: Path, team: str, score: str) -> None:
         text(s, x + Inches(0.15), top + Inches(1.0), sw - Inches(0.3), Inches(0.9), body, size=12,
              color=GREY)
     bullets(s, M, top + Inches(2.15), Inches(7.2), Inches(2.6), [
-        "Хранится: опорное состояние «до», постоянная вода GSW, AUX; разные орбиты — отдельные ряды",
-        "docker compose up · uv.lock + pyproject · seed 2026 · SHA-256 весов и артефактов · 22 теста",
-        "Инференс ≈ 2–3 ГБ VRAM, 10–20 с на пару; сервис < 1 ГБ RAM; доступ к весам ≥ 10 рабочих дней",
+        "Хранится опорное «до» + постоянная вода; орбиты — отдельные ряды",
+        "docker compose up · uv.lock · seed 2026 · SHA-256 весов · 22 теста",
+        "Инференс 2–3 ГБ VRAM, 10–20 с на пару · сервис < 1 ГБ RAM",
     ], size=14)
     picture(s, shots / "03_swagger.png", M + Inches(7.45), top, cw - Inches(7.45), Inches(4.7),
-            "скриншот 03_swagger.png")
+            ("REST API · Swagger /docs", [
+                "POST /api/analyze — геометрия + даты",
+                "GET /api/jobs/{id}/report.json | .csv",
+                "GET /api/jobs/{id}/vectors/{layer}.geojson",
+                "GET /api/pairs/{id}/mask.tif",
+                "POST /api/observations — новая сцена",
+                "GET /api/health · /api/pairs · /api/layers",
+            ]))
 
     # 10 --------------------------------------------------------------- ограничения и развитие
     s = prs.slides.add_slide(blank)
