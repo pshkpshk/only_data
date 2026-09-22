@@ -23,6 +23,8 @@
         <label>Дата «до» <input type="date" id="datePre" /></label>
         <label>Дата «пик» <input type="date" id="datePeak" /></label>
       </div>
+      <p class="hint">Расчёт идёт по подготовленным парам наблюдений Sentinel‑1/2 (каталог: список выше, <code>/api/pairs</code>).
+        Изменённые даты подбирают пару в пределах ±20 дней; если подходящей нет — сервис перечислит доступные для территории.</p>
       <label>Полигон / bbox запроса (WGS84)
         <textarea id="geometryInput" rows="3" placeholder='[min_lon, min_lat, max_lon, max_lat] или GeoJSON-геометрия'></textarea>
       </label>

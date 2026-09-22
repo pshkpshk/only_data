@@ -103,23 +103,64 @@
   // ------------------------------------------------------------------ analysis
   function setStatus(text, isError) { const s = $("status"); s.textContent = text; s.className = "status" + (isError ? " error" : ""); }
 
+  function setStatusHtml(html, isError) { const s = $("status"); s.innerHTML = html; s.className = "status" + (isError ? " error" : ""); }
+  const pairLabel = (id) => { const p = state.pairs.find((x) => x.pair_id === id); return p ? `${p.event_name} — ${p.aoi_name} (${p.date_pre} → ${p.date_peak})` : id; };
+
+  // Даты, отличные от дат выбранной пары, переключают запрос в режим «территория + даты»:
+  // сервер сам подбирает подготовленную пару наблюдений (допуск ±date_tolerance_days) или
+  // возвращает список доступных пар для этой территории.
+  function datesDifferFromPair(p) {
+    const pre = $("datePre").value, peak = $("datePeak").value;
+    return !!p && ((pre && pre !== p.date_pre) || (peak && peak !== p.date_peak));
+  }
+  ["datePre", "datePeak"].forEach((id) => { $(id).onchange = () => {
+    if (datesDifferFromPair(currentPair())) setStatus("Даты изменены — нажмите «Рассчитать»: сервис подберёт подготовленную пару наблюдений на эти даты (±20 дней) или перечислит доступные.");
+  }; });
+
+  function applyAvailablePair(pairId) {
+    const p = state.pairs.find((x) => x.pair_id === pairId);
+    if (!p) return;
+    $("pairSelect").value = pairId;
+    $("datePre").value = p.date_pre; $("datePeak").value = p.date_peak;
+    runAnalysis();
+  }
+
   async function runAnalysis() {
     let geomReq = null;
     try { geomReq = parseGeometryInput(); } catch (e) { setStatus("Не удалось разобрать геометрию: " + e.message, true); return; }
-    const body = { pair_id: $("pairSelect").value, date_pre: $("datePre").value || null, date_peak: $("datePeak").value || null, clip_to_geometry: true };
+    const selected = currentPair();
+    const byDates = datesDifferFromPair(selected);
+    const body = { date_pre: $("datePre").value || null, date_peak: $("datePeak").value || null, clip_to_geometry: true };
     if (geomReq) Object.assign(body, geomReq);
-    setStatus("Расчёт…");
+    if (byDates) { if (!geomReq) body.bbox = selected.bbox_wgs84; }   // территория = выбранный район
+    else body.pair_id = $("pairSelect").value;
+    setStatus(byDates ? "Подбор подготовленной пары по территории и датам…" : "Расчёт…");
     $("runBtn").disabled = true;
     try {
       const r = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await r.json();
-      if (!r.ok) throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail));
+      if (!r.ok) {
+        const d = data.detail;
+        if (d && d.available_pairs) {
+          const items = d.available_pairs.map((a) => `<li>${pairLabel(a.pair_id)} — покрытие ${(100 * a.overlap).toFixed(0)} % <a href="#" data-pair="${a.pair_id}">применить</a></li>`).join("");
+          setStatusHtml(`Территория покрыта, но подготовленной пары наблюдений на даты ${body.date_pre || "—"} → ${body.date_peak || "—"} нет (допуск ±20 дней). Доступные пары:<ul>${items}</ul>`, true);
+          $("status").querySelectorAll("a[data-pair]").forEach((a) => { a.onclick = (ev) => { ev.preventDefault(); applyAvailablePair(a.dataset.pair); }; });
+          return;
+        }
+        throw new Error(typeof d === "string" ? d : JSON.stringify(d));
+      }
       state.job = data;
       state.geometry = geomReq ? (geomReq.geometry || bboxToPolygon(geomReq.bbox)) : null;
       showQueryGeometry(state.geometry);
+      const switched = data.pair.pair_id !== $("pairSelect").value;
+      if (switched) $("pairSelect").value = data.pair.pair_id;
       renderReport(data);
       await loadOverlays(data);
-      setStatus(`Готово: пара ${data.pair.pair_id}, ${data.request.resolution.mode}.`);
+      if (byDates) {
+        // поля дат приводим к фактическим датам съёмки использованной пары
+        $("datePre").value = data.pair.date_pre; $("datePeak").value = data.pair.date_peak;
+        setStatus(`Запрос ${body.date_pre || "—"} → ${body.date_peak || "—"}: использована подготовленная пара ${pairLabel(data.pair.pair_id)}${switched ? " (переключено)" : ""}; в полях — фактические даты съёмки.`);
+      } else setStatus(`Готово: ${pairLabel(data.pair.pair_id)}.`);
     } catch (e) {
       setStatus("Ошибка: " + e.message, true);
     } finally {
