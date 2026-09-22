@@ -9,7 +9,7 @@
 FROM python:3.12-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 # Системные библиотеки, которых нет в slim-образе, но которые нужны бинарным колёсам
-# rasterio/GDAL (на arm64 колесо линкуется с системной libexpat) и curl для healthcheck-отладки.
+# rasterio/GDAL: на arm64 (Apple Silicon) колесо линкуется с системной libexpat.so.1.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends libexpat1 ca-certificates \
  && rm -rf /var/lib/apt/lists/*
