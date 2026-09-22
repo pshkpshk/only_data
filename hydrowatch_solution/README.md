@@ -66,7 +66,7 @@ Python 3.11–3.13 (рекомендуется 3.12), Linux/macOS/Windows. GPU �
 (полный стек) и `requirements-service.txt` (только сервис).
 
 ```bash
-# вариант A: uv (рекомендуется)
+# вариант A: uv (рекомендуется); эквивалент: uv sync --all-extras
 uv sync --extra dev --extra service --extra analysis --extra download
 
 # вариант B: pip
@@ -236,7 +236,8 @@ curl -X POST localhost:8000/api/observations -F aoi_id=svobodny -F observed_on=2
 
 ```bash
 uv run ruff check .
-uv run pytest                        # 22 теста, включая сервис (tests/test_service.py)
+uv run pytest                        # 22 теста при установке всех extras; тесты extras
+                                     # analysis/download/service пропускаются, если extra не установлен
 uv run hydrowatch-validate --require-scenes data/raw/hydrowatch_amur
 python scripts/reference_audit.py --root data/raw/hydrowatch_amur \
    --submission predictions/submission.csv --output outputs/reference_audit   # метрика + аудит эталона

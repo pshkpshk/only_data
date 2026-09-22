@@ -145,9 +145,9 @@ ls data/raw/hydrowatch_amur/rasters/flood_2021_08_zeya/svobodny/
 
 ### 3.1 Установить окружение
 ```bash
-uv sync --extra service --extra dev
+uv sync --all-extras
 ```
-Что увидите: `Using CPython 3.12.x` (uv сам скачает Python), `Resolved … packages`, много `Downloading …` (torch ≈ 150 МБ), `Installed … packages`. 3–7 минут. В папке появится скрытая `.venv` (в git не попадёт). `uv.lock` может обновиться — нормально, он закоммитится в шаге 9.
+(ставит всё: сервис, тесты, анализ, загрузку сцен — иначе часть тестов будет пропущена). Что увидите: `Using CPython 3.12.x` (uv сам скачает Python), `Resolved … packages`, много `Downloading …` (torch ≈ 150 МБ), `Installed … packages`. 3–7 минут. В папке появится скрытая `.venv` (в git не попадёт). `uv.lock` может обновиться — нормально, он закоммитится в шаге 9.
 - `error: Failed to download …` — сеть; повторите команду.
 - Другая ошибка — скопируйте последние 20 строк и пришлите мне.
 

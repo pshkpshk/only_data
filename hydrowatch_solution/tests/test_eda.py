@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import pytest
 
-from hydrowatch.eda import build_aux_label_profile, build_pair_profile
+pytest.importorskip("pandas", reason="requires the 'analysis' extra")
+
+from hydrowatch.eda import build_aux_label_profile, build_pair_profile  # noqa: E402
 
 
 def test_pair_profile_recomputes_mask_areas(tiny_dataset) -> None:

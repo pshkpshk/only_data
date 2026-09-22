@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import importlib.util
 from pathlib import Path
 
 import numpy as np
@@ -10,6 +11,8 @@ from rasterio.transform import from_origin
 
 pytest.importorskip("fastapi")
 pytest.importorskip("shapely")
+if not any(importlib.util.find_spec(m) for m in ("httpx2", "httpx")):
+    pytest.skip("TestClient needs httpx2/httpx (dev extra)", allow_module_level=True)
 
 from fastapi.testclient import TestClient  # noqa: E402
 

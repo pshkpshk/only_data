@@ -3,7 +3,12 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-from hydrowatch.download import build_tasks, load_overrides
+import pytest
+
+pytest.importorskip("planetary_computer", reason="requires the 'download' extra")
+pytest.importorskip("pystac_client", reason="requires the 'download' extra")
+
+from hydrowatch.download import build_tasks, load_overrides  # noqa: E402
 
 
 def test_scene_override_changes_orbit_and_adds_fallback(tmp_path: Path) -> None:
