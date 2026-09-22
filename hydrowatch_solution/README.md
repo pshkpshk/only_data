@@ -93,7 +93,7 @@ data/raw/hydrowatch_amur/            # набор организаторов к�
     SENTINEL2_pre.tif / _peak.tif    # выгрузка: B03,B04,B08,B11 (SR ×10000)         ← hydrowatch-download
     ERA5_daily_*.csv, *.json         # как выдано
   reference_masks/reference_<pair_id>.tif|json
-weights/
+weights/                             # не хранится в git — см. ссылку ниже
   best.pt                            # финальный checkpoint (SHA-256 6c7ef209…2d06)
   resnet18_sentinel2_all_moco.pth    # SSL4EO-S12 MoCo (только для обучения с нуля)
 predictions/                         # результат инференса, который сдаётся
@@ -102,6 +102,11 @@ predictions/                         # результат инференса, к
   masks/<pair_id>_all.tif            # flood / water_pre / water_peak — источник данных сервиса
   prediction_metadata.json, thresholds.json
 ```
+
+**Веса модели:** `weights/best.pt` (≈ размер см. по ссылке) — скачать: **<ССЫЛКА НА ЯНДЕКС.ДИСК>**,
+положить в `weights/`, проверить `shasum -a 256 weights/best.pt` →
+`6c7ef209ffe3f470d862ebeb2b4770d8d480406fd81a47d9bf7254323b8c2d06`. Доступ по ссылке сохраняется
+не менее 10 рабочих дней после окончания соревнования.
 
 Пути нигде не зашиты: всё задаётся аргументами CLI, `configs/*.yaml` и переменными окружения.
 

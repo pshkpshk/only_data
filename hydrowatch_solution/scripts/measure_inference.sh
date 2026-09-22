@@ -15,7 +15,12 @@ rm -rf "$out"
 runner=(python -m hydrowatch.predict --root "$root" --checkpoint "$checkpoint" --output-dir "$out" \
   --thresholds 0.95 0.78 0.95 --patch-size 384 --stride 256 --batch-size 4 --device "$device" --pair "$pair")
 
-if command -v /usr/bin/time >/dev/null 2>&1; then
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  # macOS: BSD time, пиковая память в байтах
+  /usr/bin/time -l "${runner[@]}" 2> "$out.time.txt" || true
+  echo "--- $pair on $device ---"
+  grep -E "real|maximum resident set size" "$out.time.txt"
+elif command -v /usr/bin/time >/dev/null 2>&1; then
   /usr/bin/time -v "${runner[@]}" 2> "$out.time.txt" || true
   echo "--- $pair on $device ---"
   grep -E "Elapsed \(wall clock\)|Maximum resident set size" "$out.time.txt"
